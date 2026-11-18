@@ -1,0 +1,57 @@
+Ans 1. 
+use schoolDB;
+db.students.drop();
+
+db.students.insertOne({
+  _id: 101,
+  name: "arun",
+  dept: "cse",
+  scores: [78, 85, 70]
+});
+
+try {
+  db.students.insertOne({
+    _id: 101,
+    name: "amit",
+    dept: "cse",
+    scores: [80, 80, 80]
+  });
+} catch (e) {
+  print(e.message);
+}
+
+db.students.insertMany([
+  { _id: 102, name: "bala", dept: "it", scores: [66, 60, 72] },
+  { _id: 103, name: "chitra", dept: "cse", scores: [91, 95, 87] },
+  { _id: 104, name: "divya", dept: "ece", scores: [72, 55, 89] },
+  { _id: 105, name: "eswar", dept: "it", scores: [84, 88, 80] },
+  { _id: 106, name: "farah", dept: "cse", scores: [59, 45, 73] }
+]);
+
+db.students.find({ dept: "cse" }).forEach(printjson);
+
+db.students.find({
+  $expr: {
+    $gte: [{ $avg: "$scores" }, 75]
+  }
+}).forEach(printjson);
+
+db.students.find({
+  dept: { $in: ["cse", "it"] }
+}).forEach(printjson);
+
+db.students.find({
+  "scores.1": { $gt: 80 }
+}).forEach(printjson);
+
+db.students.aggregate([
+  {
+    $project: {
+      _id: 0,
+      name: 1,
+      totalMarks: { $sum: "$scores" }
+    }
+  },
+  { $sort: { totalMarks: -1 } },
+  { $limit: 3 }
+]).forEach(printjson);
